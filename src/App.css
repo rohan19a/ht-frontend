@@ -1,0 +1,27 @@
+.App {
+  display: flex;
+  height: 100vh;
+}
+
+.Form {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.Form h2 {
+  margin-bottom: 10px;
+}
+
+.Form input {
+  margin-bottom: 10px;
+  padding: 5px;
+}
+
+.Map {
+  flex: 2;
+  width: 100%;
+}
