@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './App.css';
+import { get } from 'mongoose';
 
 delete L.Icon.Default.prototype._getIconUrl;
 
@@ -20,6 +21,30 @@ const defaultIcon = L.icon({
   tooltipAnchor: [16, -28],
 });
 
+const getMarkers = () => {
+  //make a request to the backend to get the markers
+  get('/api/markers')
+    .then((res) => {
+      console.log(res);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+
+
+const addtoDB = (name, lat, lng) => {
+  // Simple POST request with a JSON body using fetch
+  const requestOptions = {
+      method: 'POST',
+      headers: { 'Content-Type': 'api/add' },
+      body: JSON.stringify({name: name, lat: lat, lng: lng})
+  };
+  fetch('/api/add', requestOptions)
+      .then(response => response.json())
+      .then(data => this.setState({ postId: data.id }));
+}
+
 
 const print = (x) => {
   console.log(x);
@@ -29,8 +54,9 @@ const print = (x) => {
 const App = () => {
   const [markers, setMarkers] = useState([]);
   const [name, setName] = useState('');
-  const [lat, set_lat] = useState('');
-  const [lng, set_lng] = useState('');
+  const [lat, setLat] = useState(''); // Update variable name to setLat
+  const [lng, setLng] = useState(''); // Update variable name to setLng
+  
 
 
   const handleMarkerClick = (marker) => {
@@ -49,29 +75,15 @@ const App = () => {
   };
 
 
-  const handleMapClick = (e) => {
-    if (e.latlng.lat === null || e.latlng.lng === null) {
-      alert('Please enter a valid coordinate');
-      return;
-    }
-    const lat = e.latlng.lat;
-    const lng = e.latlng.lng;
-    setName('');
-    set_lat('');
-    set_lng('');
-    setMarkers((prevState) => [
-      ...prevState,
-      {
-        name,
-        lat,
-        lng,
-      },
-    ]);
-    alert (`Name: ${name}\nLatitude: ${lat}\nLongitude: ${lng}`);
+  const handleButtonClick = () => {
+    addMarker(name, lat, lng);
   };
 
-
-
+  const handleMapClick = () => {
+    alert('Map clicked');
+  };
+  
+  
 
   return (
     <div className="App">
@@ -85,17 +97,17 @@ const App = () => {
         />
         <input
           type="text"
-          placeholder="Coordinate (lat)"
+          placeholder="lat" // Update placeholder to "lat"
           value={lat}
-          onChange={(e) => set_lat(e.target.value)}
+          onChange={e => setLat(e.target.value)} // Update setter function to setLat
         />
         <input
           type="text"
-          placeholder="Coordinate (lng)"
+          placeholder="lng"
           value={lng}
-          onChange={(e) => set_lng(e.target.value)}
+          onChange={e => setLng(e.target.value)}
         />
-        <button onClick={handleMapClick}>Add Marker</button>
+        <button onClick={handleButtonClick}>Add Marker</button>
         <button onClick={() => setMarkers([])}>Clear Markers</button>
         <button onClick={() => print(markers)}>Print Markers</button>
         <button onClick={() => addMarker('Sample Marker', 37.78825, -122.4324)}>Add Sample Marker</button>
@@ -104,13 +116,12 @@ const App = () => {
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         {markers.map((marker, index) => (
           <Marker
-  key={index}
-  position={[marker.lat, marker.lng]}
-  icon={defaultIcon}
->
-  <Popup>{marker.name}</Popup>
+            key={index}
+            position={[marker.lat, marker.lng]}
+            icon={defaultIcon}
+          >
+  <Popup>{marker.name + marker.lat + marker.lng}</Popup>
 </Marker>
-
         ))}
       </MapContainer>
     </div>
