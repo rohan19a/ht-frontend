@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import './App.css';
@@ -56,12 +56,7 @@ const App = () => {
   const [name, setName] = useState('');
   const [lat, setLat] = useState(''); // Update variable name to setLat
   const [lng, setLng] = useState(''); // Update variable name to setLng
-  
 
-
-  const handleMarkerClick = (marker) => {
-    alert(`Name: ${marker.name}\nLatitude: ${marker.lat}\nLongitude: ${marker.lng}`);
-  };
 
   const addMarker = (name, lat, lng) => {
     setMarkers((prevState) => [
@@ -79,8 +74,18 @@ const App = () => {
     addMarker(name, lat, lng);
   };
 
-  const handleMapClick = () => {
-    alert('Map clicked');
+  
+  const handleMapClick = (e) => {
+    const { lat, lng } = e.latlng;
+    addMarker(name, lat, lng);
+  };
+
+  // Custom hook to attach the click event to the map
+  const MapClickEvent = () => {
+    useMapEvents({
+      click: handleMapClick,
+    });
+    return null;
   };
   
   
@@ -112,15 +117,16 @@ const App = () => {
         <button onClick={() => print(markers)}>Print Markers</button>
         <button onClick={() => addMarker('Sample Marker', 37.78825, -122.4324)}>Add Sample Marker</button>
       </div>
-      <MapContainer center={[37.78825, -122.4324]} zoom={13} className="Map" onClick={handleMapClick}>
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        {markers.map((marker, index) => (
+      <MapContainer center={[37.78825, -122.4324]} zoom={13} className="Map">
+      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      <MapClickEvent />
+     {markers.map((marker, index) => (
           <Marker
             key={index}
             position={[marker.lat, marker.lng]}
             icon={defaultIcon}
           >
-  <Popup>{marker.name + marker.lat + marker.lng}</Popup>
+  <Popup>{marker.name + "\n" + marker.lat + marker.lng}</Popup>
 </Marker>
         ))}
       </MapContainer>
