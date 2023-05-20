@@ -45,6 +45,9 @@ const addtoDB = (name, lat, lng) => {
       .then(data => this.setState({ postId: data.id }));
 }
 
+const pushtoDB = () => {
+}
+
 
 const print = (x) => {
   console.log(x);
@@ -72,12 +75,23 @@ const App = () => {
 
   const handleButtonClick = () => {
     addMarker(name, lat, lng);
+    setName('');
+    setLat('');
+    setLng('');
+
   };
 
   
   const handleMapClick = (e) => {
     const { lat, lng } = e.latlng;
-    addMarker(name, lat, lng);
+    //make an alert with a confirm to add a marker and a box to enter the name
+    
+
+    //add the lat and lng to the form inputs called lat and lng
+    setLat(lat);
+    setLng(lng);
+
+
   };
 
   // Custom hook to attach the click event to the map
@@ -114,8 +128,7 @@ const App = () => {
         />
         <button onClick={handleButtonClick}>Add Marker</button>
         <button onClick={() => setMarkers([])}>Clear Markers</button>
-        <button onClick={() => print(markers)}>Print Markers</button>
-        <button onClick={() => addMarker('Sample Marker', 37.78825, -122.4324)}>Add Sample Marker</button>
+        <button onClick={() => pushtoDB()}>Upload New Events</button>
       </div>
       <MapContainer center={[37.78825, -122.4324]} zoom={13} className="Map">
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
