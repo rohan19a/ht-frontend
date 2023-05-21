@@ -22,7 +22,7 @@ const defaultIcon = L.icon({
 });
 
 const getMarkers = () => {
-  //make a request to the backend to get the markers
+  // Make a request to the backend to get the markers
   get('/api/markers')
     .then((res) => {
       console.log(res);
@@ -36,73 +36,64 @@ const getMarkers = () => {
 const addtoDB = (name, lat, lng) => {
   // Simple POST request with a JSON body using fetch
   const requestOptions = {
-      method: 'POST',
-      headers: { 'Content-Type': 'api/add' },
-      body: JSON.stringify({name: name, lat: lat, lng: lng})
+    method: 'POST',
+    headers: { 'Content-Type': 'api/add' },
+    body: JSON.stringify({ name: name, lat: lat, lng: lng })
   };
   fetch('/api/add', requestOptions)
-      .then(response => response.json())
-      .then(data => this.setState({ postId: data.id }));
+    .then(response => response.json())
+    .then(data => this.setState({ postId: data.id }));
 }
 
 const pushtoDB = () => {
 }
 
-
 const print = (x) => {
   console.log(x);
 }
 
-
 const App = () => {
   const [markers, setMarkers] = useState([]);
   const [name, setName] = useState('');
-  const [lat, setLat] = useState(''); // Update variable name to setLat
-  const [lng, setLng] = useState(''); // Update variable name to setLng
+  const [lat, setLat] = useState('');
+  const [lng, setLng] = useState('');
+  const [image, setImage] = useState('');
+  const [author, setAuthor] = useState('');
 
+  const addMarker = () => {
+    const newMarker = {
+      name,
+      lat,
+      lng,
+      image,
+      author,
+    };
 
-  const addMarker = (name, lat, lng) => {
-    setMarkers((prevState) => [
-      ...prevState,
-      {
-        name,
-        lat,
-        lng,
-      },
-    ]);
-  };
-
-
-  const handleButtonClick = () => {
-    addMarker(name, lat, lng);
+    setMarkers(prevState => [...prevState, newMarker]);
     setName('');
     setLat('');
     setLng('');
-
+    setImage('');
+    setAuthor('');
   };
 
-  
   const handleMapClick = (e) => {
     const { lat, lng } = e.latlng;
-    //make an alert with a confirm to add a marker and a box to enter the name
-    
-
-    //add the lat and lng to the form inputs called lat and lng
     setLat(lat);
     setLng(lng);
-
-
   };
 
-  // Custom hook to attach the click event to the map
+  const handleButtonClick = () => {
+    addMarker();
+  };
+
   const MapClickEvent = () => {
     useMapEvents({
       click: handleMapClick,
     });
+
     return null;
   };
-  
-  
 
   return (
     <div className="App">
@@ -116,35 +107,57 @@ const App = () => {
         />
         <input
           type="text"
-          placeholder="lat" // Update placeholder to "lat"
+          placeholder="Latitude"
           value={lat}
-          onChange={e => setLat(e.target.value)} // Update setter function to setLat
+          onChange={(e) => setLat(e.target.value)}
         />
         <input
           type="text"
-          placeholder="lng"
+          placeholder="Longitude"
           value={lng}
-          onChange={e => setLng(e.target.value)}
+          onChange={(e) => setLng(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Image URL"
+          value={image}
+          onChange={(e) => setImage(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="Author"
+          value={author}
+          onChange={(e) => setAuthor(e.target.value)}
         />
         <button onClick={handleButtonClick}>Add Marker</button>
         <button onClick={() => setMarkers([])}>Clear Markers</button>
         <button onClick={() => pushtoDB()}>Upload New Events</button>
       </div>
       <MapContainer center={[37.78825, -122.4324]} zoom={13} className="Map">
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-      <MapClickEvent />
-     {markers.map((marker, index) => (
-          <Marker
-            key={index}
-            position={[marker.lat, marker.lng]}
-            icon={defaultIcon}
-          >
-  <Popup>{marker.name + "\n" + marker.lat + marker.lng}</Popup>
-</Marker>
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <MapClickEvent />
+        {markers.map((marker, index) => (
+          <Marker key={index} position={[marker.lat, marker.lng]} icon={defaultIcon}>
+            <Popup>
+              <div>
+                <h4>{marker.name}</h4>
+                <p>Latitude: {marker.lat}</p>
+                <p>Longitude: {marker.lng}</p>
+                {marker.image && (
+                  <img
+                    src={marker.image}
+                    alt="Marker"
+                    style={{ width: '100px', height: 'auto' }} // Specify the desired dimensions here
+                  />
+                )}
+                {marker.author && <p>Author: {marker.author}</p>}
+              </div>
+            </Popup>
+          </Marker>
         ))}
       </MapContainer>
     </div>
   );
 };
-  
+
 export default App;
